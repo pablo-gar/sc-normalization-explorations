@@ -2,11 +2,10 @@
 
 The following datasets will be used for testing normalization methods. For each only the data from lung will be used.
 
-1. [LungMAP — Human data from a broad age healthy donor group.] (https://cellxgene.cziscience.com/collections/625f6bf4-2f33-4942-962e-35243d284837)
-2. [Tabula Sapiens - All Cells] (https://cellxgene.cziscience.com/collections/e5f58829-1a66-40b5-a624-9046778e74f5)
-2. [COVID-19 immune features revealed by a large-scale single-cell transcriptome atlas] (https://cellxgene.cziscience.com/collections/0a839c4b-10d0-4d64-9272-684c49a2c8ba)
+1. [LungMAP — Human data from a broad age healthy donor group.](https://cellxgene.cziscience.com/collections/625f6bf4-2f33-4942-962e-35243d284837)
+2. [Tabula Sapiens - All Cells](https://cellxgene.cziscience.com/collections/e5f58829-1a66-40b5-a624-9046778e74f5)
+2. [COVID-19 immune features revealed by a large-scale single-cell transcriptome atlas](https://cellxgene.cziscience.com/collections/0a839c4b-10d0-4d64-9272-684c49a2c8ba)
 
-To download
 
 ```
 bash scripts/download/download_data.sh
