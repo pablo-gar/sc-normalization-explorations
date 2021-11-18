@@ -15,8 +15,6 @@ bash scripts/download/download_data.sh
 
 ## Select only lung data and 10X
 
-This will only get lung data
-
 ```
 bash ./scripts/processing/subsample_lung.sh
 ```
