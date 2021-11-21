@@ -1,6 +1,6 @@
-import scanpy as sc
 import scvi
-import
+import scanpy as sc
+import os
 
 out_dir = "./data/normalized/scvi/"
 
@@ -17,7 +17,7 @@ adatas = adatas.concatenate(adata_3)
 
 shared_columns = list(set(adata_1.obs.columns).intersection(set(adata_2.obs.columns)).intersection(set(adata_3.obs.columns)))
 
-adatas.obs = adatas.obs[shared_columns]
+adatas.obs = adatas.obs[shared_columns + ["batch"]]
 
 #------
 # Run scvi

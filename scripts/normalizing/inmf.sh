@@ -6,7 +6,7 @@ mkdir -p ${out_dir}
 for i in ${in_dir}/*
 do
     echo "Working with $(basename $i)"
-    python3 ./scripts/normalizing/rankit.py $i ${out_dir}/$(basename $i) &
+    python3 ./scripts/normalizing/inmf.py $i ${out_dir}/$(basename $i) &
 done
 
 # wait for all pids
