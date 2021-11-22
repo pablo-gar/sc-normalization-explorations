@@ -23,7 +23,7 @@ rms[rms == 0] = 1
 
 if sparse.issparse(adata.X):
     adata.X = (adata.X.toarray() - mean) / rms
-    adata.X = sparse.csr_matrix(adata.X)
+    #adata.X = sparse.csr_matrix(adata.X)
 else:
     adata.X = (adata.X - mean) / rms 
 
