@@ -10,15 +10,20 @@ layers = sys.argv[1].split(",")
 input_file = sys.argv[2]
 prefix = sys.argv[3]
 
+
 # Reading
 adata = ad.read(input_file)
+
+if layers == ["all"]:
+    layers = ["X"]
+    for i in adata.layers:
+        layers.append(i)
 
 # writing obs and var
 adata.obs.to_csv(prefix + "_obs.gz", sep="\t", index = False, header = True)
 adata.var.to_csv(prefix + "_var.gz", sep="\t", index = False, header = True)
 
 for layer in layers:
-    
     
     if layer == "X":
         x = adata.X
@@ -34,4 +39,4 @@ for layer in layers:
             io.mmwrite(out, x)
     else:
         out_file = prefix + "_" + layer + "_txt.gz"
-        np.savetxt(out_file, x, fmt="%s")
+        np.savetxt(out_file, x, delimiter="\t")

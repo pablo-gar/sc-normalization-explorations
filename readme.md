@@ -47,6 +47,12 @@ This will subsample cells to a max of 100K cell per dataset, the sampling is don
 bash ./scripts/normalizing/inmf.sh
 ```
 
+## Do Z-scores
+
+```
+bash ./scripts/normalizing/z_scores.sh
+```
+
 ## Do scvi normalization
 
 ```
@@ -59,24 +65,18 @@ python3 ./scripts/normalizing/scvi.py
 # Getting data ready for R notebook
 
 
-- Save individual files for mtx, obs and var
+Save scvi normalization of data only from lung map
 
 ```
-in_dir="./data/for_notebook/normalized_standard_cell_types/"
-out_dir_prefix="./data/for_notebook/matrix_files/"
-
-for i in $in_dir/*
-do
-    out_dir=$out_dir_prefix/$(basename $i)/
-    mkdir -p $out_dir
-    python3 ./scripts/processing/save_mtx_obs_var.py rankit $i $out_dir &
-done
+mkdir -p ./data/for_notebook/
+python3 ./scripts/processing/save_mtx_obs_var.py all ./data/normalized/scvi/lung_map.h5ad ./data/for_notebook/lung_map
 ```
-- Make rds file for notebook
+
+Save all normalization methods of all datasets
 
 ```
-working_dir="./data/for_notebook/matrix_files/"
-ouf_file="./data/for_notebook/all_data.rds"
-
-Rscript ./scripts/processing/make_rds_notebook.R $working_dir $ouf_file
+mkdir -p ./data/for_notebook/
+python3 ./scripts/processing/save_mtx_obs_var.py all ./data/normalized/scvi/all.h5ad ./data/for_notebook/all_datasets
 ```
+
+
