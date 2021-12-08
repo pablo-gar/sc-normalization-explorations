@@ -61,6 +61,14 @@ mkdir -p ./data/normalized/scvi
 python3 ./scripts/normalizing/scvi.py
 ```
 
+# Get marker genes
+
+```
+mkdir -p ./data/marker_genes/
+python3 ./scripts/processing/find_marker_genes.py rankit ./data/normalized/scvi/all.h5ad ./data/marker_genes/marker_genes_rankit.tsv
+python3 ./scripts/processing/find_marker_genes.py scvi ./data/normalized/scvi/all.h5ad ./data/marker_genes/marker_genes_scvi.tsv
+```
+
 
 # Getting data ready for R notebook
 

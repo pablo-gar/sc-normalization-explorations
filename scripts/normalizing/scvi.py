@@ -1,6 +1,8 @@
 import scvi
+import numpy as np
 import scanpy as sc
 import os
+from scipy import sparse
 
 out_dir = "./data/normalized/scvi/"
 
@@ -12,8 +14,7 @@ adata_2 = sc.read("./data/normalized/z_score/tabula_sapiens.h5ad")
 adata_3 = sc.read("./data/normalized/z_score/zemin_covid.h5ad")
 
 adata_single = adata_1.copy()
-adatas = adata_1.concatenate(adata_2)
-adatas = adatas.concatenate(adata_3)
+adatas = adata_1.concatenate([adata_2, adata_3])
 
 shared_columns = list(set(adata_1.obs.columns).intersection(set(adata_2.obs.columns)).intersection(set(adata_3.obs.columns)))
 
