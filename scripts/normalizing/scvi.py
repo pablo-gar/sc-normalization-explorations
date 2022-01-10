@@ -35,7 +35,7 @@ model_concatenaded.train()
 #------
 # Get normalized expression
 adata_single.layers["scvi"] = model_single.get_normalized_expression(adata_single, return_numpy=True)
-adatas.layers["scvi"] = model_concatenaded.get_normalized_expression(adatas, return_numpy=True)
+adatas.layers["scvi"] = model_concatenaded.get_normalized_expression(adatas, return_numpy=True, transform_batch=["0", "1", "2"])
 
 #------
 # set zeroes
