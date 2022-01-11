@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import sparse
 import numba
+from math import inf 
 
 
 def _get_mean_var(X, *, axis=0, RSM=False):
@@ -61,6 +62,7 @@ def sparse_mean_var_minor_axis(data, indices, major_len, minor_len, dtype, RSM):
     non_zero = indices.shape[0]
 
     means = np.zeros(minor_len, dtype=dtype)
+    lengths = np.zeros_like(means, dtype=dtype)
     variances = np.zeros_like(means, dtype=dtype)
     if RSM:
         mean_of_squares = np.zeros_like(means, dtype=dtype)
@@ -70,13 +72,19 @@ def sparse_mean_var_minor_axis(data, indices, major_len, minor_len, dtype, RSM):
     for i in range(non_zero):
         col_ind = indices[i]
         means[col_ind] += data[i]
+        if data[i] > 0 :
+            lengths[col_ind] += 1
         if RSM:
             mean_of_squares[col_ind] += data[i]*data[i]
+            
+    lengths[lengths==0] = 1
 
     for i in range(minor_len):
-        means[i] /= major_len
+        #means[i] /= major_len
+        means[i] /= lengths[i]
         if RSM:
-            variances[i] = np.sqrt(mean_of_squares[i] / major_len)
+            #variances[i] = np.sqrt(mean_of_squares[i] / major_len)
+            variances[i] = np.sqrt(mean_of_squares[i] / lengths[i])
     
     # Calculate variance if not using RSM
     if not RSM:
@@ -87,8 +95,10 @@ def sparse_mean_var_minor_axis(data, indices, major_len, minor_len, dtype, RSM):
             counts[col_ind] += 1
 
         for i in range(minor_len):
-            variances[i] += (major_len - counts[i]) * means[i] ** 2
-            variances[i] /= major_len
+            #variances[i] += (major_len - counts[i]) * means[i] ** 2
+            #variances[i] /= major_len
+            variances[i] += (lengths[i] - counts[i]) * means[i] ** 2
+            variances[i] /= lengths[i]
 
     return means, variances
 
@@ -102,6 +112,7 @@ def sparse_mean_var_major_axis(data, indices, indptr, major_len, minor_len, dtyp
     row back.
     """
     means = np.zeros(major_len, dtype=dtype)
+    lengths = np.zeros_like(means, dtype=dtype)
     variances = np.zeros_like(means, dtype=dtype)
     if RSM:
         mean_of_squares = np.zeros_like(means, dtype=dtype)
@@ -113,18 +124,25 @@ def sparse_mean_var_major_axis(data, indices, indptr, major_len, minor_len, dtyp
 
         for j in range(startptr, endptr):
             means[i] += data[j]
+            if data[j] > 0:
+                lengths[i] += 1
             if RSM:
                 mean_of_squares[i] += data[j]*data[j]
                 
-        means[i] /= minor_len
+        #means[i] /= minor_len
+        lengths[lengths==0] = 1
+        means[i] /= lengths[i]
         if RSM:
-            variances[i] = np.sqrt(mean_of_squares[i] / major_len)
+            #variances[i] = np.sqrt(mean_of_squares[i] / minor_len)
+            variances[i] = np.sqrt(mean_of_squares[i] / lengths[i])
         else:
             for j in range(startptr, endptr):
                 diff = data[j] - means[i]
                 variances[i] += diff * diff
 
-            variances[i] += (minor_len - counts) * means[i] ** 2
-            variances[i] /= minor_len
+            #variances[i] += (minor_len - counts) * means[i] ** 2
+            #variances[i] /= minor_len
+            variances[i] += (lengths[i] - counts) * means[i] ** 2
+            variances[i] /= lengths[i]
 
     return means, variances
