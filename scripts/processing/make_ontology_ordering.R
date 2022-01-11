@@ -1,17 +1,34 @@
-# Makes an onotlogy tree using the Zemin COVID datasets
-# Collection url: https://cellxgene.cziscience.com/collections/0a839c4b-10d0-4d64-9272-684c49a2c8bajkA
-
-# This requires a table with 4 columns: cell_type, cell_type_ontology_term_id, tissue, tissue_ontology_term_id
-# The rows in this table should be unique
-
 library("dplyr")
 library("ontologyPlot")
 library("ontologyIndex")
 library("Rgraphviz")
-light_color <- "#C9EBF7"
-strong_color <- "#FF9D1F"
 
+#' MAIN FUNCTION
+#' Get a DAG and node ordering of nodes of interest. Attempt 2, by starting on
+#' root and then traversing the tree in a depth-first manner and mantaining
+#' left-to-right order of siblings.
+#' 
+#' @param CL ontology object loaded with ontologyIndex::get_ontology.
+#' @param cell_types vector of strings indicating nodes of interest.
 
+get_cell_type_order <- function(CL, cell_types, root_term="CL:0000000") {
+  
+  cell_type_ancestors <- get_ancestors_ontology(cell_types, CL, root_term)
+  
+  # Get tree and graph coodinates
+  tree <- get_tree(cell_type_ancestors, cell_types, CL)
+  graph <- agopen_ontology_plot(tree)
+  graph_df <- get_node_coordinates(graph)
+  
+  targets <- set_order(term = root_term, ontology_object = CL, 
+                       graph_df = graph_df, all_terms = cell_type_ancestors, 
+                       terms_of_interest = cell_types)
+  
+  ordered_nodes <- targets$ordered_terms
+  rownames(graph_df) <- graph_df$name
+  return(list(onto_plot = tree, ordered_nodes=graph_df[ordered_nodes,]))
+  
+}
 
 # This function is in "ontologyPlot" but it's not exported 
 # This is a wrapper to agopen from "Rgraphiz"
@@ -91,10 +108,8 @@ get_ancestors_ontology <- function(terms, ontolgoy_object, root_term) {
 #' 
 #' @return tree object from onto_plot 
  
-get_tree <- function(terms, target_terms, ontology_object) {
-  
-  light_color <- "#C9EBF7"
-  strong_color <- "#FF9D1F"
+get_tree <- function(terms, target_terms, ontology_object, 
+                     light_color = "#C9EBF7", strong_color = "#FF9D1F") {
   
   node_colors <- rep(light_color, length(terms))
   node_colors[terms %in% target_terms] <- strong_color
@@ -229,30 +244,6 @@ set_order_recursion <- function(term, ontology_object, graph_df, all_terms, targ
   
 }
 
-#' Get a DAG and node ordering of nodes of interest. Attempt 2, by starting on
-#' root and then traversing the tree in a depth-first manner.
-#' 
-#' @param CL ontology object loaded with ontologyIndex
-#' @param cell_types vector of strings indicating nodes of interest
-
-get_cell_type_order <- function(CL, cell_types, root_term="CL:0000000") {
-  
-  cell_type_ancestors <- get_ancestors_ontology(cell_types, CL, root_term)
-  
-  # Get tree and graph coodinates
-  tree <- get_tree(cell_type_ancestors, cell_types, CL)
-  graph <- agopen_ontology_plot(tree)
-  graph_df <- get_node_coordinates(graph)
-  
-  targets <- set_order(term = root_term, ontology_object = CL, 
-                       graph_df = graph_df, all_terms = cell_type_ancestors, 
-                       terms_of_interest = cell_types)
-  
-  ordered_nodes <- targets$ordered_terms
-  rownames(graph_df) <- graph_df$name
-  return(list(onto_plot = tree, ordered_nodes=graph_df[ordered_nodes,]))
-  
-}
 
 #' Get a DAG and node ordering of nodes of interest
 #' 
@@ -276,6 +267,8 @@ get_cell_type_order_old <- function(CL, cell_types) {
   cell_type_ancestors <- unique(cell_type_ancestors)
   
   # Get tree
+  light_color <- "#C9EBF7"
+  strong_color <- "#FF9D1F"
   node_colors <- rep(light_color, length(cell_type_ancestors))
   node_colors[cell_type_ancestors %in% cell_types] <- strong_color
   tree <- onto_plot(CL, terms=cell_type_ancestors, 
