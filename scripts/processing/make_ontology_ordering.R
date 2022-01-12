@@ -85,12 +85,12 @@ get_node_coordinates <- function(x) {
 #' 
 #' @return vector of strings with all ancestor terms.
 
-get_ancestors_ontology <- function(terms, ontolgoy_object, root_term) {
+get_ancestors_ontology <- function(terms, ontology, root_term) {
   
-  tree_terms <- get_descendants(CL, root_term)
+  tree_terms <- get_descendants(ontology, root_term)
   
   # All ancestors of our targets 
-  ancestors <- c(get_ancestors(ontolgoy_object, terms))
+  ancestors <- c(get_ancestors(ontology, terms))
   ancestors <- ancestors[ancestors %in% tree_terms]
   ancestors <- unique(ancestors)
   
