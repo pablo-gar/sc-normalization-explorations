@@ -10,15 +10,15 @@ from sklearn.preprocessing import QuantileTransformer
 
 def main():
     
-    input_file = sys.argv[1]
-    output_file = sys.argv[2]
+    #input_file = sys.argv[1]
+    #output_file = sys.argv[2]
     
-    input_file = "./tabula_muris_lung.h5ad"
-    input_file = "./lung_map.h5ad"
+    input_file = "../data/raw/lung_map_3de0ad6d-4378-4f62-b37b-ec0b75a50d94.h5ad"
+    output_file = "../data/unit_files/lung_map_3de0ad6d-4378-4f62-b37b-ec0b75a50d94.h5ad"
     
     genes = ["MALAT1", "CCL5"]
     min_expressed_genes = 500
-    min_reads = 3
+    min_reads = 0
     offset = 3
     
     adata = ad.read(input_file)
@@ -28,18 +28,24 @@ def main():
     
     adata = remove_low_coverage_cells(adata, min_expressed_genes)
     adata = rankit_normalize(adata, offset)
-    adata = set_low_to_na(adata, min_reads)
+    del adata.raw
+    adata_2 = adata[:, [x in genes for x in adata.var.feature_name]]
+    #adata = set_low_to_na(adata, min_reads)
     
     # Get everything in json file
-    output = dict()
-    output["n_cells"] = adata.n_obs
-    output["n_genes"] = adata.n_var
-    output["rankit"] = dict()
-    for gene in genes:
-        output["rankit"][gene] = dict()
-        gene_expression = adata.layers["rankit"][:,adata.var_names == gene]
-        non_zero_cells = gene_expression.nonzero()[1]
-        
+    #output = dict()
+    #output["n_cells"] = adata.n_obs
+    #output["n_genes"] = adata.n_var
+    #output["rankit"] = dict()
+    #for gene in genes:
+    #    output["rankit"][gene] = dict()
+    #    gene_expression = adata.layers["rankit"][:,adata.var_names == gene]
+    #    non_zero_cells = gene_expression.nonzero()[1]
+    
+    # Write h5ad
+    
+    adata.write(output_file, compression="gzip")
+    
     
 
 def remove_low_coverage_cells(adata, n_genes):
@@ -76,13 +82,16 @@ def Q_Q_Prob(data, offset):
     
     ranks = sc.stats.rankdata(data, method="dense")
     
-    n = len(data)
+    n = max(ranks)
     prob_level = []
     
     for i in ranks:
-        prob_level.append(np.round((i+1-0.5)/n,5))
+        prob_level.append(np.round((i-1+0.5)/n,5))
         
     Standard_normal_quantiles = sc.stats.norm.ppf(prob_level, loc=offset)
     
     return Standard_normal_quantiles
+
+if __name__ == "__main__":
+    main()
 
